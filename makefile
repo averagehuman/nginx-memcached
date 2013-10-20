@@ -12,6 +12,7 @@ uninstall:
 	fi
 
 install: setup
+	@apt-get -y install zlib1g-dev libssl-dev libpcre3-dev libmhash-dev
 	@apt-get -y install supervisor memcached
 	@if [ ! -e etc/buildout/.installed.cfg ]; then \
 		d=$$(dirname $$(pwd)); \
