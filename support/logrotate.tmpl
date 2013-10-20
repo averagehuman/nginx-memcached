@@ -1,0 +1,13 @@
+${cfg:nginx_logdir}/*.log {
+	daily
+	missingok
+	rotate 90
+	compress
+	delaycompress
+	notifempty
+	create 0640 ${cfg:admin} ${cfg:admin}
+	sharedscripts
+	postrotate
+		[ ! -f ${cfg:nginx_pidfile} ] || kill -USR1 `cat ${cfg:nginx_pidfile}`
+	endscript
+}

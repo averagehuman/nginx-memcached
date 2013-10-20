@@ -1,0 +1,9 @@
+
+[program:nginx]
+command = ${cfg:nginx_prefix}/bin/nginx
+process_name = nginx
+priority = 100
+redirect_stderr = true
+autostart = true
+autorestart = true
+

@@ -1,0 +1,10 @@
+
+[program:uwsgi]
+command = {%- if "binary-path" in context -%}{{context["binary-path"]|abspath}}{% else %}uwsgi{% endif %}
+        --emperor {{context["vassals-path"]|abspath}}
+        --ini {{context["conf-path"]|abspath}}
+autostart = true
+autorestart = true
+stopsignal = QUIT
+user = {{user}}
+

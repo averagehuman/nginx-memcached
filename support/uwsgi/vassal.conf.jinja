@@ -1,0 +1,13 @@
+
+[uwsgi]
+master = true
+processes = {{processes}}
+module = {{module}}
+socket = {{socket}}
+subscribe-to = {{subscribe_to}}
+harakiri = {{harakiri}}
+{% for var in env|split %}env = {{var}}
+{% endfor %}{% for egg in eggs %}{% if egg %}python-path = {{egg.location}}{% endif %}
+{% endfor %}{% for pth in extrapaths|split %}{% if pth %}python-path = {{pth}}{% endif %}
+{% endfor %}
+

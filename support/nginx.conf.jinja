@@ -1,0 +1,107 @@
+
+worker_processes  {{worker_processes}};
+daemon   {{daemon}};
+
+error_log  {{error_log}};
+
+events {
+    worker_connections  {{worker_connections}};
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+
+    access_log  {{access_log}};
+
+    sendfile        on;
+    tcp_nopush     on;
+    tcp_nodelay     on;
+    keepalive_timeout  65;
+    gzip  on;
+    proxy_read_timeout   200;
+    client_max_body_size 5M;
+
+    upstream backend {
+    {% for srv in proxy_servers.split() %}    server    {{srv}};
+    {% endfor %}
+    }
+
+    server {
+
+        server_name {{server_name}}
+        listen {{listen}};
+
+        location /assets {
+            alias {{asset_root}};
+            expires 30d;
+        }
+
+        location /media  {
+            alias {{media_root}};
+            expires 30d;
+        }
+
+        location = /favicon.ico {
+            rewrite (.*) /media/$host/favicon.ico permanent;
+        }
+        location = /robots.txt {
+            rewrite (.*) /media/robots.txt permanent;
+        }
+
+        location / {
+
+            # Hit memcache, to see if the page is there
+
+            # Extract cache key args and cache key.
+            if ($http_cookie ~* "pubid=([^;]+)(?:;|$)") {
+                set $page_version $1;
+            }
+
+            # If you are running multiple sites off the same server,
+            # the cache key to include the domain, too, which nginx
+            # doesn't consider part of the $uri.
+
+            set_md5 $hash_key $http_host$uri&pv=$page_version;
+            set $memcached_key {{cache_prefix}}:{{cache_version}}:$hash_key;
+
+            recursive_error_pages on;
+
+            default_type       text/html;
+            memcached_pass     unix:{{local_memcached_socket}};
+
+            # We hand off all of these to @cache_miss and its descendent handlers.
+            # The = means the handlers determine the error code, which is a Good Thing
+
+            error_page         401 = @cache_miss;
+            error_page         403 = @cache_miss;
+            error_page         404 = @cache_miss;
+            error_page         405 = @cache_miss;
+            error_page         502 = @cache_miss;
+
+            # Note that it is not permitted to have a try_files in the same
+            # location block as a memcache_pass
+        }
+
+        location @cache_miss {
+            # Pass some client identification headers back to dynamic server
+            proxy_set_header        Host            $host;
+            proxy_set_header        X-Real-IP       $remote_addr;
+            proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header        X-Scheme        $scheme;
+
+            proxy_pass http://backend;
+        }
+
+        # 404 Not Found
+        error_page  404 /assets/404.html;
+
+        # 500 Server Error  - redirect to the static page /50x.html
+        error_page   500 502 503 504  /assets/500.html;
+
+    }
+
+}
+

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+cp etc/nginx.conf {{prefix}}/conf/nginx.conf
+cp etc/supervisor.conf /etc/supervisor/conf.d/nginx.conf
+cp etc/logrotate.conf /etc/logrotate.d/nginx
+cp etc/memcached.conf /etc/memcached_local_cache.conf
+
+

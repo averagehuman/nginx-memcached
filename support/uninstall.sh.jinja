@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set +e
+
+supervisorctl stop nginx > /dev/null 2>&1
+
+set -e
+
+rm -rf {{logdir}}
+rm -rf {{tmpdir}}
+rm -rf {{prefix}}
+rm -f /etc/logrotate.d/nginx
+rm -f /etc/supervisor/conf.d/nginx.conf
+rm -f /etc/memcached_local_cache.conf
+
+

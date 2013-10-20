@@ -1,0 +1,16 @@
+
+
+description     "django instance"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+#manual
+
+respawn
+
+setuid ${cfg:user}
+setgid ${cfg:group}
+
+
+exec ${buildout:bin-directory}/supervisord -n -c ${supervisor:supervisord-conf}
+
