@@ -1,0 +1,10 @@
+
+django==1.5.4
+python_memcached
+django_debug_toolbar==0.9.4
+unicode-slugify==0.1.1
+yuicompressor==2.4.8
+gunicorn==18.0
+git+git://github.com/jmoiron/johnny-cache.git@5bd9028#egg=johnny-cache
+brodul.recipe.template
+

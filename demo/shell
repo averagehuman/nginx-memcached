@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./bin/django shell_plus
+
