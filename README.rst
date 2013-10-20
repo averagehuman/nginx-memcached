@@ -60,13 +60,26 @@ backend app should be configured to use this socket. For example, for Django::
         },
     }
 
+To start nginx, run::
 
-To change default options, update the base.cfg in this directory.
+    $ sudo supervisorctl reread
+    $ sudo supervisorctl update
 
-Default base.cfg
-----------------
+The secondary memcached server's configuration is copied to
+``/etc/memcached_local_cache.conf``, and this will run on system startup or by
+running::
 
-::
+    $ sudo service memcached restart
+
+Now you just have to ensure your backend, gunicorn say, is running and
+that the proxy settings in the nginx config (``/opt/nginx/<nginx-version>/conf/nginx.conf``)
+are correct for that backend.
+
+Defaults
+--------
+
+To change nginx and proxy options, update the ``base.cfg`` in the source directory
+before running ``make install``. The default ``base.cfg`` is as folows::
 
     [nginx]
     version = 1.4.3
