@@ -17,7 +17,7 @@ adaptable to fragment caching and per-user caching.
 Why not Varnish?
 ----------------
 
-Or use Varnish. Whatever makes you happy.
+Or use Varnish, which doesn't rely on cookies. Whatever makes you happy.
 
 Credit
 ------
@@ -34,7 +34,7 @@ In the source directory run::
 
     $ sudo make install
 
-This installs by default to ``/opt/nginx/<nginx-version>``, and adds
+This installs nginx by default to ``/opt/nginx/<nginx-version>``, and adds
 ``supervisord`` and ``logrotate`` configurations to the appropriate places.
 It also adds a secondary ``memcached`` configuration (in addition to the
 primary ``memcached`` server running on port 11211 say). This secondary server
@@ -59,7 +59,8 @@ backend app should be configured to use this socket. For example, for Django::
         },
     }
 
-To start nginx after installing, run via supervisord::
+``supervisord`` is responsible for starting nginx on start up. You can start
+it manually after the initial install with::
 
     $ sudo supervisorctl reread
     $ sudo supervisorctl update
