@@ -59,7 +59,7 @@ backend app should be configured to use this socket. For example, for Django::
         },
     }
 
-To start nginx, run::
+To start nginx after installing, run via supervisord::
 
     $ sudo supervisorctl reread
     $ sudo supervisorctl update
