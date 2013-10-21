@@ -37,7 +37,7 @@ In the source directory run::
 This installs by default to ``/opt/nginx/<nginx-version>``, and adds
 ``supervisord`` and ``logrotate`` configurations to the appropriate places.
 It also adds a secondary ``memcached`` configuration (in addition to the
-primary ``memcached`` server running on port 11211). This secondary server
+primary ``memcached`` server running on port 11211 say). This secondary server
 runs on a local unix domain socket, by default ``/tmp/local-memcahe``, and the
 backend app should be configured to use this socket. For example, for Django::
 
