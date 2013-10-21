@@ -22,8 +22,8 @@ Or use Varnish, which doesn't rely on cookies. Whatever makes you happy.
 Credit
 ------
 
-This has all been adapted from `django-nginx-memcache`_ by `torchbox`_, which was
-itself adapted from an original project by Paul Craciunoiu described `here`_.
+The nginx setup has been adapted from `django-nginx-memcache`_ by `torchbox`_, which was
+itself forked from an original project by Paul Craciunoiu described `here`_.
 
 Usage
 -----
