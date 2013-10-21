@@ -17,8 +17,7 @@ adaptable to fragment caching and per-user caching.
 Why not Varnish?
 ----------------
 
-Or use Varnish. There is possibly more programmatic control with the memcached
-method, and so may be suitable for more complex apps.
+Or use Varnish. Whatever makes you happy.
 
 Credit
 ------
