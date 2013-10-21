@@ -5,6 +5,19 @@ set -e
 cp etc/nginx.conf {{prefix}}/conf/nginx.conf
 cp etc/supervisor.conf /etc/supervisor/conf.d/nginx.conf
 cp etc/logrotate.conf /etc/logrotate.d/nginx
+
+# our dedicated local cache
 cp etc/memcached.conf /etc/memcached_local_cache.conf
+
+# the memcached system start script will start a server for every config file
+# matching "/etc/memcached_*.conf", and, only if no files are found, fall back
+# to the default "/etc/memcached.conf". But we don't necessarily want to interfere
+# with the default server, so make sure its config is named correctly:
+if [ -e /etc/memcached.conf ]; then
+    mv /etc/memcached.conf /etc/memcached_default.conf
+fi
+
+# and restart
+service memcached restart
 
 
