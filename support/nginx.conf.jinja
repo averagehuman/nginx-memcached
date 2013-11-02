@@ -59,7 +59,7 @@ http {
             # Hit memcache, to see if the page is there
 
             # Extract cache key args and cache key.
-            if ($http_cookie ~* "pubid=([^;]+)(?:;|$)") {
+            if ($http_cookie ~* "{{cookie_name}}=([^;]+)(?:;|$)") {
                 set $page_version $1;
             }
 
@@ -67,7 +67,7 @@ http {
             # the cache key to include the domain, too, which nginx
             # doesn't consider part of the $uri.
 
-            set_md5 $hash_key $http_host$uri&pv=$page_version;
+            set_md5 $hash_key $http_host$uri&{{cookie_name}}=$page_version;
             set $memcached_key {{cache_prefix}}:{{cache_version}}:$hash_key;
 
             recursive_error_pages on;
