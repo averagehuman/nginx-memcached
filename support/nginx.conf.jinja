@@ -37,6 +37,38 @@ http {
         server_name {{server_name}}
         listen {{listen}};
 
+        ## Deny illegal Host headers
+        {% if serv_name != "_" %}
+        if ($host !~* ^({% for host in server_name.split() %}{{host}}{% if not loop.last %}|{% endif %}{% endfor %})$ ) {
+            return 444;
+        }{% endif %}
+
+        ## Deny certain User-Agents (case insensitive)
+        ## The ~* makes it case insensitive as opposed to just a ~
+        if ($http_user_agent ~* (Baiduspider|Jullo) ) {
+            return 444;
+        }
+
+        ## Deny certain Referers (case insensitive)
+        ## The ~* makes it case insensitive as opposed to just a ~
+        if ($http_referer ~* (babes|click|diamond|forsale|girl|jewelry|love|nudit|organic|poker|porn|poweroversoftware|sex|teen|video|webcam|zippo) ) {
+            return 444;
+        }
+
+        ## Redirect from www to non-www
+        {% if server_name != "_" %}{% for host in server_name.split() %}{% if not host.startswith("www.") %}
+        if ($host = 'www.{{host}}' ) {
+            rewrite  ^/(.*)$  http://{{host}}/$1  permanent;
+        }{% endif %}{% endfor %}{% endif %}
+
+        {% if server_name != "_" %}
+        ## Stop Image and Document Hijacking
+        location ~* (\.jpg|\.jpeg|\.png|\.gif|\.doc|\.pdf|\.xls|\.css)$ {
+            if ($http_referer !~ ^({% for host in server_name.split()%}http://{{host}}{% if not loop.last %}|{% endif %}{% endfor %}) ) {
+                return 444;
+            }
+        }{% endif %}
+
         location /assets {
             alias {{asset_root}};
             expires 30d;
