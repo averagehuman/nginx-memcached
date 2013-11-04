@@ -34,7 +34,7 @@ http {
 
     server {
 
-        server_name {{server_name}}
+        server_name {{server_name}};
         listen {{listen}};
 
         ## Deny illegal Host headers
@@ -61,22 +61,22 @@ http {
             rewrite  ^/(.*)$  http://{{host}}/$1  permanent;
         }{% endif %}{% endfor %}{% endif %}
 
-        {% if server_name != "_" %}
-        ## Stop Image and Document Hijacking
-        location ~* (\.jpg|\.jpeg|\.png|\.gif|\.doc|\.pdf|\.xls|\.css)$ {
-            if ($http_referer !~ ^({% for host in server_name.split()%}http://{{host}}{% if not loop.last %}|{% endif %}{% endfor %}) ) {
-                return 444;
-            }
-        }{% endif %}
-
         location /assets {
             alias {{asset_root}};
             expires 30d;
+            valid_referers none blocked{% for host in server_name.split() %} {{host}}{% endfor %};
+            if ($invalid_referer) {
+                return   403;
+            }
         }
 
         location /media  {
             alias {{media_root}};
             expires 30d;
+            valid_referers none blocked{% for host in server_name.split() %} {{host}}{% endfor %};
+            if ($invalid_referer) {
+                return   403;
+            }
         }
 
         location = /favicon.ico {
