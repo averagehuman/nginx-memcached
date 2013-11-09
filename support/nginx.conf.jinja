@@ -63,7 +63,7 @@ http {
 
         location /assets {
             alias {{asset_root}};
-            expires 30d;
+            expires max;
             valid_referers none blocked{% for host in server_name.split() %} {{host}}{% endfor %};
             if ($invalid_referer) {
                 return   403;
@@ -72,7 +72,8 @@ http {
 
         location /media  {
             alias {{media_root}};
-            expires 30d;
+            expires max;
+            if_modified_since before;
             valid_referers none blocked{% for host in server_name.split() %} {{host}}{% endfor %};
             if ($invalid_referer) {
                 return   403;
@@ -99,7 +100,7 @@ http {
             # the cache key to include the domain, too, which nginx
             # doesn't consider part of the $uri.
 
-            set_md5 $hash_key $http_host$uri&{{cookie_name}}=$page_version;
+            set_md5 $hash_key $http_host$uri$args&{{cookie_name}}=$page_version;
             set $memcached_key {{cache_prefix}}:{{cache_version}}:$hash_key;
 
             recursive_error_pages on;
