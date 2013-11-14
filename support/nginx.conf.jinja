@@ -49,12 +49,6 @@ http {
             return 444;
         }
 
-        ## Deny certain Referers (case insensitive)
-        ## The ~* makes it case insensitive as opposed to just a ~
-        if ($http_referer ~* (babes|click|diamond|forsale|girl|jewelry|love|nudit|organic|poker|porn|poweroversoftware|sex|teen|video|webcam|zippo) ) {
-            return 444;
-        }
-
         ## Redirect from www to non-www
         {% if server_name != "_" %}{% for host in server_name.split() %}{% if not host.startswith("www.") %}
         if ($host = 'www.{{host}}' ) {
