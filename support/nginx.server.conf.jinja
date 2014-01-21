@@ -1,0 +1,107 @@
+
+    upstream backend {
+    {% for srv in proxy_servers.split() %}    server    {{srv}};
+    {% endfor %}
+    }
+
+    server {
+
+        server_name {{server_name}};
+        listen {{listen}};
+
+        ## Deny illegal Host headers
+        {% if server_name != "_" %}
+        if ($host !~* ^({% for host in server_name.split() %}{{host}}{% if not loop.last %}|{% endif %}{% endfor %})$ ) {
+            return 444;
+        }{% endif %}
+
+        ## Deny certain User-Agents (case insensitive)
+        ## The ~* makes it case insensitive as opposed to just a ~
+        if ($http_user_agent ~* (Baiduspider|Jullo) ) {
+            return 444;
+        }
+
+        ## Redirect from www to non-www
+        {% if server_name != "_" %}{% for host in server_name.split() %}{% if not host.startswith("www.") %}
+        if ($host = 'www.{{host}}' ) {
+            rewrite  ^/(.*)$  http://{{host}}/$1  permanent;
+        }{% endif %}{% endfor %}{% endif %}
+
+        location /assets {
+            alias {{asset_root}};
+            expires max;
+            valid_referers none blocked{% for host in server_name.split() %} {{host}}{% endfor %};
+            if ($invalid_referer) {
+                return   403;
+            }
+        }
+
+        location /media  {
+            alias {{media_root}};
+            expires max;
+            if_modified_since before;
+            valid_referers none blocked{% for host in server_name.split() %} {{host}}{% endfor %};
+            if ($invalid_referer) {
+                return   403;
+            }
+        }
+
+        location = /favicon.ico {
+            rewrite (.*) /media/$host/favicon.ico permanent;
+        }
+        location = /robots.txt {
+            rewrite (.*) /media/robots.txt permanent;
+        }
+
+        location / {
+
+            # Hit memcache, to see if the page is there
+
+            # Extract cache key args and cache key.
+            if ($http_cookie ~* "{{cookie_name}}=([^;]+)(?:;|$)") {
+                set $page_version $1;
+            }
+
+            # If you are running multiple sites off the same server,
+            # the cache key to include the domain, too, which nginx
+            # doesn't consider part of the $uri.
+
+            set_md5 $hash_key $http_host$uri$args&{{cookie_name}}=$page_version;
+            set $memcached_key {{cache_prefix}}:{{cache_version}}:$hash_key;
+
+            recursive_error_pages on;
+
+            default_type       text/html;
+            memcached_pass     unix:{{local_memcached_socket}};
+
+            # We hand off all of these to @cache_miss and its descendent handlers.
+            # The = means the handlers determine the error code, which is a Good Thing
+
+            error_page         401 = @cache_miss;
+            error_page         403 = @cache_miss;
+            error_page         404 = @cache_miss;
+            error_page         405 = @cache_miss;
+            error_page         502 = @cache_miss;
+
+            # Note that it is not permitted to have a try_files in the same
+            # location block as a memcache_pass
+        }
+
+        location @cache_miss {
+            # Pass some client identification headers back to dynamic server
+            proxy_set_header        Host            $host;
+            proxy_set_header        X-Real-IP       $remote_addr;
+            proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header        X-Scheme        $scheme;
+
+            proxy_pass http://backend;
+        }
+
+        # 404 Not Found
+        error_page  404 /assets/404.html;
+
+        # 500 Server Error  - redirect to the static page /50x.html
+        error_page   500 502 503 504  /assets/500.html;
+
+    }
+
