@@ -2,7 +2,11 @@
 
 set -e
 
-cp etc/nginx.conf {{prefix}}/conf/nginx.conf
+nginx_conf="{{install_root}}/conf/nginx.conf"
+site_conf="{{include_root}}/{{siteid}}"
+
+cp etc/nginx.conf $nginx_conf
+cp etc/site.conf $site_conf
 cp etc/supervisor.conf /etc/supervisor/conf.d/nginx.conf
 cp etc/logrotate.conf /etc/logrotate.d/nginx
 
@@ -16,8 +20,5 @@ cp etc/memcached.conf /etc/memcached_local_cache.conf
 if [ -e /etc/memcached.conf ]; then
     mv /etc/memcached.conf /etc/memcached_default.conf
 fi
-
-# and restart
-service memcached restart
 
 

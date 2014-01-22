@@ -1,8 +1,7 @@
 
     upstream backend {
     {% for srv in proxy_servers.split() %}    server    {{srv}};
-    {% endfor %}
-    }
+    {% endfor %}}
 
     server {
 
