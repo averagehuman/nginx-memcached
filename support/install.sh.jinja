@@ -3,7 +3,7 @@
 set -e
 
 nginx_conf="{{install_root}}/conf/nginx.conf"
-site_conf="{{include_root}}/{{siteid}}"
+site_conf="{{include_root}}/{{service_name}}"
 
 cp etc/nginx.conf $nginx_conf
 cp etc/site.conf $site_conf
